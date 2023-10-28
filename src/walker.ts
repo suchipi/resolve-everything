@@ -6,8 +6,8 @@ import type { ErrorReport, ResolverFunction } from "./types";
 
 export type WalkerOptions = {
   resolver: ResolverFunction;
-  ignore: RegExp | null;
-  flat: boolean;
+  skip: RegExp | null;
+  onlyEntrypoint: boolean;
 };
 
 export class Walker extends EventEmitter {
@@ -89,10 +89,7 @@ export class Walker extends EventEmitter {
             if (target.startsWith("external:")) {
               continue;
             }
-            if (
-              this._options.ignore != null &&
-              this._options.ignore.test(target)
-            ) {
+            if (this._options.skip != null && this._options.skip.test(target)) {
               continue;
             }
             if (!this.modules.has(target)) {
@@ -109,7 +106,7 @@ export class Walker extends EventEmitter {
         reportError(error);
       }
 
-      if (this._options.flat) {
+      if (this._options.onlyEntrypoint) {
         break;
       }
     }

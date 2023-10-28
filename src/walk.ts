@@ -9,7 +9,7 @@ export type WalkOptions = {
   onError?: (error: ErrorReport) => void;
   resolver?: ResolverFunction;
   skip?: RegExp | null;
-  flat?: boolean;
+  onlyEntrypoint?: boolean;
 };
 
 export function walk(
@@ -29,14 +29,14 @@ export function walk(
   }
 
   const resolver = options?.resolver ?? defaultResolver;
-  const ignore =
+  const skip =
     typeof options?.skip === "undefined" ? /node_modules/ : options?.skip;
-  const flat = options?.flat ?? false;
+  const onlyEntrypoint = options?.onlyEntrypoint ?? false;
 
   const walker = new Walker(entrypoint, {
     resolver,
-    ignore,
-    flat,
+    skip,
+    onlyEntrypoint,
   });
 
   if (options?.onError) {

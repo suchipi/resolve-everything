@@ -17,9 +17,9 @@ run(
     fullErrors: optionalBoolean,
     skip: optionalString,
     json: optionalBoolean,
-    flat: optionalBoolean,
+    onlyEntrypoint: optionalBoolean,
   },
-  async ({ entrypoint, resolver, fullErrors, skip, json, flat }) => {
+  async ({ entrypoint, resolver, fullErrors, skip, json, onlyEntrypoint }) => {
     if (!fs.existsSync(entrypoint)) {
       throw new Error("No such file: " + entrypoint);
     }
@@ -90,7 +90,7 @@ run(
     const result = walk(entrypoint, walkOptions);
     let toPrint: any = serialize(result.modules);
 
-    if (flat) {
+    if (onlyEntrypoint) {
       toPrint = toPrint[entrypoint];
     }
 
