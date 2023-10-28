@@ -1,9 +1,8 @@
 {
   "include": ["./src/**/*.ts"],
-  "exclude": ["./**/*.test.ts"],
 
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": ["es2021"],
     "target": "es2020",
     "module": "CommonJS",
     "outDir": "./dist",

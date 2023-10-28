@@ -1,21 +1,13 @@
 import { expect, test } from "vitest";
-import path from "node:path";
-import util from "node:util";
-import { pathMarker } from "path-less-traveled";
 import { walk } from "./index";
-
-const rootDir = pathMarker(path.resolve(__dirname, ".."));
+import { rootDir, inspectAndClean } from "./test-helpers";
 
 test("sample walk", () => {
   const entrypoint = rootDir("src/index.ts");
 
   const result = walk(entrypoint);
 
-  const sanitized = util
-    .inspect(result, { depth: Infinity })
-    .replaceAll(rootDir(), "<rootDir>");
-
-  expect(sanitized).toMatchInlineSnapshot(`
+  expect(inspectAndClean(result)).toMatchInlineSnapshot(`
     "{
       errors: [],
       modules: Map(8) {
@@ -95,11 +87,7 @@ test("including node_modules via skip: null", () => {
 
   const result = walk(entrypoint, { skip: null });
 
-  const sanitized = util
-    .inspect(result, { depth: Infinity })
-    .replaceAll(rootDir(), "<rootDir>");
-
-  expect(sanitized).toMatchInlineSnapshot(`
+  expect(inspectAndClean(result)).toMatchInlineSnapshot(`
     "{
       errors: [],
       modules: Map(258) {
@@ -1963,11 +1951,7 @@ test("only going one module deep via onlyEntrypoint: true", () => {
 
   const result = walk(entrypoint, { onlyEntrypoint: true });
 
-  const sanitized = util
-    .inspect(result, { depth: Infinity })
-    .replaceAll(rootDir(), "<rootDir>");
-
-  expect(sanitized).toMatchInlineSnapshot(`
+  expect(inspectAndClean(result)).toMatchInlineSnapshot(`
     "{
       errors: [],
       modules: Map(1) {
@@ -2000,11 +1984,7 @@ test("custom resolver function", () => {
     },
   });
 
-  const sanitized = util
-    .inspect(result, { depth: Infinity })
-    .replaceAll(rootDir(), "<rootDir>");
-
-  expect(sanitized).toMatchInlineSnapshot(`
+  expect(inspectAndClean(result)).toMatchInlineSnapshot(`
     "{
       errors: [],
       modules: Map(2) {
