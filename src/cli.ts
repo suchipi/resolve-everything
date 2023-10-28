@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import util from "node:util";
-import { run, requiredPath, optionalPath, optionalBoolean } from "clefairy";
+import {
+  run,
+  requiredPath,
+  optionalPath,
+  optionalBoolean,
+  optionalString,
+} from "clefairy";
 import { walk, WalkOptions, ReportedError, serialize } from ".";
 
 run(
@@ -9,18 +15,11 @@ run(
     entrypoint: requiredPath,
     resolver: optionalPath,
     fullErrors: optionalBoolean,
-    includeNodeModules: optionalBoolean,
+    ignore: optionalString,
     json: optionalBoolean,
     flat: optionalBoolean,
   },
-  async ({
-    entrypoint,
-    resolver,
-    fullErrors,
-    includeNodeModules,
-    json,
-    flat,
-  }) => {
+  async ({ entrypoint, resolver, fullErrors, ignore, json, flat }) => {
     if (!fs.existsSync(entrypoint)) {
       throw new Error("No such file: " + entrypoint);
     }
@@ -44,8 +43,24 @@ run(
           console.error(err.error);
         }
       },
-      includeNodeModules,
     };
+
+    if (ignore) {
+      if (ignore === "null") {
+        walkOptions.ignore = null;
+      } else {
+        const mightBeRegExpLiteral = /^\/.*\/[gimsuy]?$/.test(ignore);
+        if (mightBeRegExpLiteral) {
+          try {
+            walkOptions.ignore = eval(ignore);
+          } catch (err) {
+            walkOptions.ignore = new RegExp(ignore, "gu");
+          }
+        } else {
+          walkOptions.ignore = new RegExp(ignore, "gu");
+        }
+      }
+    }
 
     if (resolver) {
       const exps = require(resolver);

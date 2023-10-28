@@ -82,7 +82,23 @@ export class Module {
             },
           })
         ) {
-          debugLogger.traverse("found require", nodePath.node);
+          debugLogger.traverse("found require", node);
+          requests.push((node.arguments[0] as any).value);
+        }
+
+        if (
+          ee.hasShape(node, {
+            callee: {
+              type: "Import",
+            },
+            arguments: {
+              0: {
+                type: "StringLiteral",
+              },
+            },
+          })
+        ) {
+          debugLogger.traverse("found dynamic import", node);
           requests.push((node.arguments[0] as any).value);
         }
       },

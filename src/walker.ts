@@ -6,7 +6,7 @@ import type { ErrorReport, ResolverFunction } from "./types";
 
 export type WalkerOptions = {
   resolver: ResolverFunction;
-  includeNodeModules: boolean;
+  ignore: RegExp | null;
   flat: boolean;
 };
 
@@ -90,8 +90,8 @@ export class Walker extends EventEmitter {
               continue;
             }
             if (
-              !this._options.includeNodeModules &&
-              /node_modules/.test(target)
+              this._options.ignore != null &&
+              this._options.ignore.test(target)
             ) {
               continue;
             }
