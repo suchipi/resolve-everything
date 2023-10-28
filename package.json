@@ -21,6 +21,7 @@
   },
   "prettier": {},
   "dependencies": {
+    "clefairy": "^0.4.0",
     "debug": "^4.3.4",
     "equivalent-exchange": "^1.10.0",
     "pretty-print-ast": "^1.0.1",

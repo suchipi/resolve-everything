@@ -1,8 +1,7 @@
 import * as fs from "node:fs";
-import * as path from "node:path";
 import * as ee from "equivalent-exchange";
-import resolve from "resolve";
 import { debugLogger } from "./debug-logger";
+import type { ResolverFunction } from "./types";
 
 let formatAst: typeof import("pretty-print-ast").formatAst;
 if (debugLogger.ast.enabled) {
@@ -13,13 +12,22 @@ if (debugLogger.ast.enabled) {
 
 export class Module {
   id: string;
+  private _resolver: ResolverFunction;
 
-  constructor(id: string) {
+  constructor(id: string, resolver: ResolverFunction) {
     this.id = id;
+    this._resolver = resolver;
   }
 
-  read(): string {
+  read(): string | null {
     debugLogger.summary("Module.read", this.id);
+
+    if (/\.(?:json|node|wasm)$/.test(this.id)) {
+      debugLogger.summary("not a source code file:", this.id);
+      debugLogger.returns("Module.read -> null");
+      return null;
+    }
+
     const code = fs.readFileSync(this.id, "utf-8");
     debugLogger.fileContent(code);
     debugLogger.returns("Module.read ->", code);
@@ -89,25 +97,7 @@ export class Module {
     debugLogger.summary("Module.resolve", this.id, request);
     debugLogger.args("Module.resolve", request);
 
-    const resolved = resolve.sync(request, {
-      basedir: path.dirname(this.id),
-      extensions: [
-        ".mtsx",
-        ".mts",
-        ".mjsx",
-        ".mjs",
-        ".tsx",
-        ".ts",
-        ".jsx",
-        ".js",
-        ".ctsx",
-        ".cts",
-        ".cjsx",
-        ".cjs",
-        ".json",
-        ".node",
-      ],
-    });
+    const resolved = this._resolver(request, this.id);
 
     debugLogger.returns("Module.resolve ->", resolved);
     return resolved;

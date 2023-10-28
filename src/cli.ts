@@ -1,24 +1,61 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import path from "node:path";
-import { walk } from ".";
+import { run, requiredPath, optionalPath, optionalBoolean } from "clefairy";
+import { walk, WalkOptions, ReportedError } from ".";
 
-let entrypoint = process.argv.slice(2).join(" ");
+run(
+  {
+    entrypoint: requiredPath,
+    resolver: optionalPath,
+    fullErrors: optionalBoolean,
+  },
+  async ({ entrypoint, resolver, fullErrors }) => {
+    if (!fs.existsSync(entrypoint)) {
+      throw new Error("No such file: " + entrypoint);
+    }
 
-if (!path.isAbsolute(entrypoint)) {
-  entrypoint = path.resolve(process.cwd(), entrypoint);
-}
+    const walkOptions: WalkOptions = {
+      onError: (err: ReportedError) => {
+        let message = `Failed to ${err.stage} `;
+        if (err.request) {
+          message += JSON.stringify(err.request) + " ";
+        }
+        message += `for ${JSON.stringify(err.filename)}`;
+        console.warn(message);
 
-if (!fs.existsSync(entrypoint)) {
-  console.error("No such file: ", entrypoint);
-  process.exit(1);
-}
+        if (fullErrors) {
+          console.error(err.error);
+        }
+      },
+    };
 
-const result = walk(entrypoint, (err) => {
-  console.warn(
-    `Error during '${err.stage}' of ${JSON.stringify(err.filename)}:`,
-  );
-  console.warn(err.error);
-});
+    if (resolver) {
+      const exps = require(resolver);
+      if (typeof exps === "function") {
+        walkOptions.resolver = exps;
+      } else if (typeof exps === "object" && exps != null) {
+        if (typeof exps.resolve === "function") {
+          walkOptions.resolver = exps.resolve;
+        } else if (typeof exps.default === "function") {
+          walkOptions.resolver = exps.default;
+        } else {
+          throw new Error(
+            `Resolver at ${JSON.stringify(
+              resolver,
+            )} didn't export a 'resolve' function.`,
+          );
+        }
+      } else {
+        throw new Error(
+          `Resolver at ${JSON.stringify(
+            resolver,
+          )} didn't export a 'resolve' function.`,
+        );
+      }
+    }
 
-console.log({ result });
+    const result = walk(entrypoint, walkOptions);
+
+    console.log({ result });
+  },
+);
