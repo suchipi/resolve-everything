@@ -1,6 +1,3 @@
 .DS_Store
 node_modules
 dist
-
-# use bun instead and commit changes to bun.lockb
-package-lock.json
