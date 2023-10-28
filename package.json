@@ -1,6 +1,6 @@
 {
   "name": "resolve-everything",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "walk your project's import/require tree and print all the relationships",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
