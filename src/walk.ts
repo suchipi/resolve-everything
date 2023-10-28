@@ -8,7 +8,7 @@ import { defaultResolver } from "./default-resolver";
 export type WalkOptions = {
   onError?: (error: ErrorReport) => void;
   resolver?: ResolverFunction;
-  ignore?: RegExp | null;
+  skip?: RegExp | null;
   flat?: boolean;
 };
 
@@ -30,7 +30,7 @@ export function walk(
 
   const resolver = options?.resolver ?? defaultResolver;
   const ignore =
-    typeof options?.ignore === "undefined" ? /node_modules/ : options?.ignore;
+    typeof options?.skip === "undefined" ? /node_modules/ : options?.skip;
   const flat = options?.flat ?? false;
 
   const walker = new Walker(entrypoint, {

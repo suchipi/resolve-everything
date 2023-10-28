@@ -15,11 +15,11 @@ run(
     entrypoint: requiredPath,
     resolver: optionalPath,
     fullErrors: optionalBoolean,
-    ignore: optionalString,
+    skip: optionalString,
     json: optionalBoolean,
     flat: optionalBoolean,
   },
-  async ({ entrypoint, resolver, fullErrors, ignore, json, flat }) => {
+  async ({ entrypoint, resolver, fullErrors, skip, json, flat }) => {
     if (!fs.existsSync(entrypoint)) {
       throw new Error("No such file: " + entrypoint);
     }
@@ -45,19 +45,19 @@ run(
       },
     };
 
-    if (ignore) {
-      if (ignore === "null") {
-        walkOptions.ignore = null;
+    if (skip) {
+      if (skip === "none") {
+        walkOptions.skip = null;
       } else {
-        const mightBeRegExpLiteral = /^\/.*\/[gimsuy]?$/.test(ignore);
+        const mightBeRegExpLiteral = /^\/.*\/[gimsuy]?$/.test(skip);
         if (mightBeRegExpLiteral) {
           try {
-            walkOptions.ignore = eval(ignore);
+            walkOptions.skip = eval(skip);
           } catch (err) {
-            walkOptions.ignore = new RegExp(ignore, "gu");
+            walkOptions.skip = new RegExp(skip, "gu");
           }
         } else {
-          walkOptions.ignore = new RegExp(ignore, "gu");
+          walkOptions.skip = new RegExp(skip, "gu");
         }
       }
     }
@@ -92,6 +92,10 @@ run(
 
     if (flat) {
       toPrint = toPrint[entrypoint];
+    }
+
+    if (json === undefined && !process.stdout.isTTY) {
+      json = true;
     }
 
     if (json) {
