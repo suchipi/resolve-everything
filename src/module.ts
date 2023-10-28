@@ -21,8 +21,8 @@ export class Module {
   read(): string | null {
     debugLogger.summary("Module.read", this.id);
 
-    if (/\.(?:json|node|wasm)$/.test(this.id)) {
-      debugLogger.summary("not a source code file:", this.id);
+    if (!/\.[cm]?[tj]sx?$/.test(this.id)) {
+      debugLogger.summary("doesn't appear to be js/ts:", this.id);
       debugLogger.returns("Module.read -> null");
       return null;
     }
