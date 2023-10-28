@@ -4,7 +4,9 @@
   "description": "walk your project's import/require tree and print all the relationships",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "bin": "dist/cli.js",
+  "bin": {
+    "resolve-everything": "dist/cli.js"
+  },
   "scripts": {
     "build": "rm -rf dist && bunx --bun tsc && chmod +x dist/cli.js",
     "test": "vitest",
@@ -30,5 +32,9 @@
     "kleur": "^4.1.5",
     "pretty-print-ast": "^1.0.1",
     "resolve": "^1.22.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suchipi/resolve-everything.git"
   }
 }
