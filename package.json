@@ -12,7 +12,14 @@
     "test": "vitest",
     "cli": "bun src/cli.ts"
   },
-  "keywords": [],
+  "keywords": [
+    "import",
+    "module",
+    "graph",
+    "tree",
+    "require",
+    "relation"
+  ],
   "author": "Lily Skye <me@suchipi.com>",
   "license": "MIT",
   "devDependencies": {
