@@ -1633,7 +1633,7 @@ test("including node_modules via skip: null", () => {
         '<rootDir>/node_modules/chalk/index.js' => Module {
           requests: Map(4) {
             'escape-string-regexp' => '<rootDir>/node_modules/escape-string-regexp/index.js',
-            'ansi-styles' => '<rootDir>/node_modules/chalk/node_modules/ansi-styles/index.js',
+            'ansi-styles' => '<rootDir>/node_modules/ansi-styles/index.js',
             'supports-color' => '<rootDir>/node_modules/supports-color/index.js',
             './templates.js' => '<rootDir>/node_modules/chalk/templates.js'
           },
@@ -1776,11 +1776,11 @@ test("including node_modules via skip: null", () => {
           requests: Map(0) {},
           id: '<rootDir>/node_modules/escape-string-regexp/index.js'
         },
-        '<rootDir>/node_modules/chalk/node_modules/ansi-styles/index.js' => Module {
+        '<rootDir>/node_modules/ansi-styles/index.js' => Module {
           requests: Map(1) {
             'color-convert' => '<rootDir>/node_modules/color-convert/index.js'
           },
-          id: '<rootDir>/node_modules/chalk/node_modules/ansi-styles/index.js'
+          id: '<rootDir>/node_modules/ansi-styles/index.js'
         },
         '<rootDir>/node_modules/chalk/templates.js' => Module {
           requests: Map(0) {},
