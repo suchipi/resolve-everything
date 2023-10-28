@@ -1,8 +1,11 @@
 import * as path from "node:path";
-import { Walker } from "./walker";
+import { Walker, type WalkerError } from "./walker";
 import { debugLogger } from "./debug-logger";
 
-export function walk(entrypoint: string) {
+export function walk(
+  entrypoint: string,
+  onError?: (error: WalkerError) => void,
+) {
   debugLogger.summary("walk", entrypoint);
   debugLogger.args("walk", entrypoint);
 
@@ -13,6 +16,11 @@ export function walk(entrypoint: string) {
   }
 
   const walker = new Walker(entrypoint);
+
+  if (onError) {
+    walker.on("error", onError);
+  }
+
   const errors = walker.walk();
   const modules = walker.modules;
 

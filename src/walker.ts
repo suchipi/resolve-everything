@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import { Module } from "./module";
 import { debugLogger } from "./debug-logger";
 
-type WalkerError = {
+export type WalkerError = {
   filename: string;
   stage: "read" | "parse" | "getRequests" | "resolve";
   error: Error;
@@ -27,9 +27,6 @@ export class Walker extends EventEmitter {
 
     this.entrypoint = entrypoint;
     this.modules = new Map();
-
-    const entrypointFile = new Module(entrypoint);
-    this.modules.set(entrypoint, entrypointFile);
   }
 
   walk(): {
@@ -42,6 +39,7 @@ export class Walker extends EventEmitter {
 
     let filename: string | undefined;
     while ((filename = filesToProcess.shift())) {
+      debugLogger.summary("Walker.walk -> processing", filename);
       this.emit("processing", filename);
 
       if (this.modules.has(filename)) {
@@ -63,6 +61,7 @@ export class Walker extends EventEmitter {
         for (const request of requests) {
           const target = mod.resolve(request);
           if (!this.modules.has(target)) {
+            debugLogger.summary("Walker.walk -> queueing", target);
             this.emit("queueing", target);
             filesToProcess.push(target);
           }

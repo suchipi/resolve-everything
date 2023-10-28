@@ -4,8 +4,9 @@
   "description": "walk your project's import/require tree and print all the relationships",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": "dist/cli.js",
   "scripts": {
-    "build": "rm -rf dist && tsc",
+    "build": "rm -rf dist && tsc && chmod +x dist/cli.js",
     "test": "vitest"
   },
   "keywords": [],
