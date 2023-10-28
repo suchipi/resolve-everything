@@ -1,25 +1,42 @@
 #!/usr/bin/env node
 import fs from "node:fs";
 import util from "node:util";
-import {
-  run,
-  requiredPath,
-  optionalPath,
-  optionalBoolean,
-  optionalString,
-} from "clefairy";
+import { run, optionalPath, optionalBoolean, optionalString } from "clefairy";
 import { walk, WalkOptions, ReportedError, serialize } from ".";
 
 run(
   {
-    entrypoint: requiredPath,
+    entrypoint: optionalPath,
     resolver: optionalPath,
     fullErrors: optionalBoolean,
     skip: optionalString,
     json: optionalBoolean,
     onlyEntrypoint: optionalBoolean,
+    help: optionalBoolean,
+    h: optionalBoolean,
   },
-  async ({ entrypoint, resolver, fullErrors, skip, json, onlyEntrypoint }) => {
+  async ({
+    entrypoint,
+    resolver,
+    fullErrors,
+    skip,
+    json,
+    onlyEntrypoint,
+    help,
+    h,
+  }) => {
+    if (help || h) {
+      const helpText = require("./help-text").default;
+      console.log(helpText);
+      return;
+    }
+
+    if (entrypoint == null) {
+      throw new Error(
+        `You must specify an --entrypoint. Run with --help for more info.`,
+      );
+    }
+
     if (!fs.existsSync(entrypoint)) {
       throw new Error("No such file: " + entrypoint);
     }

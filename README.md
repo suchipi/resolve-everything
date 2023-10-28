@@ -39,7 +39,7 @@ which outputs JSON shaped like:
 
 - `--entrypoint` (path): The place to start walking the module graph. This is the only required option.
 
-- `--skip` (RegExp|"none"): Which files not to parse and find requires/imports in. Defaults to `/node_modules/`. Specify "none" to parse everything it finds.
+- `--skip` (RegExp|"none"): Which files not to parse and find requires/imports in. Defaults to `/node_modules/`. Specify "none" to parse everything.
 
 - `--json` (boolean): whether to output json or human-readable data. default value varies depending on if stdout is a tty.
 
