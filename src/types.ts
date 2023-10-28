@@ -1,4 +1,4 @@
-export type ReportedError = {
+export type ErrorReport = {
   filename?: string;
   request?: string;
   stage: "read" | "parse" | "getRequests" | "resolve";

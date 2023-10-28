@@ -1,21 +1,38 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import util from "node:util";
 import { run, requiredPath, optionalPath, optionalBoolean } from "clefairy";
-import { walk, WalkOptions, ReportedError } from ".";
+import { walk, WalkOptions, ReportedError, serialize } from ".";
 
 run(
   {
     entrypoint: requiredPath,
     resolver: optionalPath,
     fullErrors: optionalBoolean,
+    includeNodeModules: optionalBoolean,
+    json: optionalBoolean,
+    flat: optionalBoolean,
   },
-  async ({ entrypoint, resolver, fullErrors }) => {
+  async ({
+    entrypoint,
+    resolver,
+    fullErrors,
+    includeNodeModules,
+    json,
+    flat,
+  }) => {
     if (!fs.existsSync(entrypoint)) {
       throw new Error("No such file: " + entrypoint);
     }
 
     const walkOptions: WalkOptions = {
       onError: (err: ReportedError) => {
+        if (!fullErrors && /node_modules/.test(err.filename || "")) {
+          // Don't report resolution errors under node_modules dirs because
+          // they're usually not actionable.
+          return;
+        }
+
         let message = `Failed to ${err.stage} `;
         if (err.request) {
           message += JSON.stringify(err.request) + " ";
@@ -27,6 +44,7 @@ run(
           console.error(err.error);
         }
       },
+      includeNodeModules,
     };
 
     if (resolver) {
@@ -55,7 +73,16 @@ run(
     }
 
     const result = walk(entrypoint, walkOptions);
+    let toPrint: any = serialize(result.modules);
 
-    console.log({ result });
+    if (flat) {
+      toPrint = toPrint[entrypoint];
+    }
+
+    if (json) {
+      console.log(JSON.stringify(toPrint, null, 2));
+    } else {
+      console.log(util.inspect(toPrint, { depth: 4, colors: true }));
+    }
   },
 );

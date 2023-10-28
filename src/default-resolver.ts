@@ -36,7 +36,7 @@ export function defaultResolver(id: string, fromFilePath: string): string {
     ],
   });
 
-  if (result.endsWith(".node")) {
+  if (result.endsWith(".node") || result.endsWith(".wasm")) {
     return "external:" + result;
   }
 

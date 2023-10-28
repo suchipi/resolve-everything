@@ -1,5 +1,9 @@
-export { walk, WalkOptions } from "./walk";
-export { ReportedError, ResolverFunction } from "./types";
+export { walk, type WalkOptions } from "./walk";
+export type { ErrorReport as ReportedError, ResolverFunction } from "./types";
 export { defaultResolver } from "./default-resolver";
-export { Walker } from "./walker";
+export { Walker, type WalkerOptions } from "./walker";
 export { Module } from "./module";
+export {
+  serialize,
+  type SerializedModules as SerializeResult,
+} from "./serialize";

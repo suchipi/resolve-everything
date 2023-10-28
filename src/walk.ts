@@ -1,12 +1,14 @@
 import * as path from "node:path";
 import { Walker } from "./walker";
 import { debugLogger } from "./debug-logger";
-import type { ReportedError, ResolverFunction } from "./types";
+import type { ErrorReport, ResolverFunction } from "./types";
 import { defaultResolver } from "./default-resolver";
 
 export type WalkOptions = {
-  onError?: (error: ReportedError) => void;
+  onError?: (error: ErrorReport) => void;
   resolver?: ResolverFunction;
+  includeNodeModules?: boolean;
+  flat?: boolean;
 };
 
 export function walk(entrypoint: string, options?: WalkOptions) {
@@ -20,14 +22,20 @@ export function walk(entrypoint: string, options?: WalkOptions) {
   }
 
   const resolver = options?.resolver ?? defaultResolver;
+  const includeNodeModules = options?.includeNodeModules ?? false;
+  const flat = options?.flat ?? false;
 
-  const walker = new Walker(entrypoint, resolver);
+  const walker = new Walker(entrypoint, {
+    resolver,
+    includeNodeModules,
+    flat,
+  });
 
   if (options?.onError) {
     walker.on("error", options!.onError);
   }
 
-  const errors = walker.walk();
+  const { errors } = walker.walk();
   const modules = walker.modules;
 
   const ret = {

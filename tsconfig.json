@@ -3,8 +3,8 @@
   "exclude": ["./**/*.test.ts"],
 
   "compilerOptions": {
-    "lib": ["es2019", "dom"],
-    "target": "es2018",
+    "lib": ["es2020"],
+    "target": "es2020",
     "module": "CommonJS",
     "outDir": "./dist",
     "declaration": true,
@@ -21,7 +21,7 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "downlevelIteration": true,
+    "downlevelIteration": false,
 
     "moduleResolution": "node",
     "esModuleInterop": true

@@ -2,18 +2,24 @@ import * as path from "node:path";
 import { EventEmitter } from "node:events";
 import { Module } from "./module";
 import { debugLogger } from "./debug-logger";
-import type { ReportedError, ResolverFunction } from "./types";
+import type { ErrorReport, ResolverFunction } from "./types";
+
+export type WalkerOptions = {
+  resolver: ResolverFunction;
+  includeNodeModules: boolean;
+  flat: boolean;
+};
 
 export class Walker extends EventEmitter {
   entrypoint: string;
   modules: Map<string, Module>;
 
-  private _resolver: ResolverFunction;
+  private _options: WalkerOptions;
 
-  constructor(entrypoint: string, resolver: ResolverFunction) {
+  constructor(entrypoint: string, options: WalkerOptions) {
     super();
 
-    this._resolver = resolver;
+    this._options = options;
 
     if (!path.isAbsolute(entrypoint)) {
       throw Object.assign(
@@ -29,27 +35,27 @@ export class Walker extends EventEmitter {
   }
 
   walk(): {
-    errors: Array<ReportedError>;
+    errors: Array<ErrorReport>;
   } {
     debugLogger.summary("Walker.walk");
 
     const filesToProcess = [this.entrypoint];
 
     let filename: string | undefined;
-    const errors: Array<ReportedError> = [];
-    let errorStage: ReportedError["stage"] = "read";
+    const errors: Array<ErrorReport> = [];
+    let errorStage: ErrorReport["stage"] = "read";
     let errorRequest: string | undefined = undefined;
 
-    const report = (error: Error) => {
-      const errorReport = {
-        stage: errorStage,
+    const reportError = (error: Error) => {
+      const report = {
         filename,
+        stage: errorStage,
         request: errorRequest,
         error,
       };
-      debugLogger.summary("error reported:", errorReport);
-      this.emit("error", errorReport);
-      errors.push(errorReport);
+      debugLogger.summary("error reported:", report);
+      this.emit("error", report);
+      errors.push(report);
     };
 
     while ((filename = filesToProcess.shift())) {
@@ -60,7 +66,7 @@ export class Walker extends EventEmitter {
         // already processed
         continue;
       }
-      const mod = new Module(filename, this._resolver);
+      const mod = new Module(filename);
       this.modules.set(filename, mod);
 
       try {
@@ -79,8 +85,14 @@ export class Walker extends EventEmitter {
         for (const request of requests) {
           errorRequest = request;
           try {
-            const target = mod.resolve(request);
+            const target = mod.resolve(request, this._options.resolver);
             if (target.startsWith("external:")) {
+              continue;
+            }
+            if (
+              !this._options.includeNodeModules &&
+              /node_modules/.test(target)
+            ) {
               continue;
             }
             if (!this.modules.has(target)) {
@@ -89,12 +101,16 @@ export class Walker extends EventEmitter {
               filesToProcess.push(target);
             }
           } catch (error: any) {
-            report(error);
+            reportError(error);
           }
         }
         errorRequest = undefined;
       } catch (error: any) {
-        report(error);
+        reportError(error);
+      }
+
+      if (this._options.flat) {
+        break;
       }
     }
 

@@ -12,11 +12,10 @@ if (debugLogger.ast.enabled) {
 
 export class Module {
   id: string;
-  private _resolver: ResolverFunction;
+  requests = new Map<string, string>();
 
-  constructor(id: string, resolver: ResolverFunction) {
+  constructor(id: string) {
     this.id = id;
-    this._resolver = resolver;
   }
 
   read(): string | null {
@@ -93,11 +92,13 @@ export class Module {
     return requests;
   }
 
-  resolve(request: string): string {
+  resolve(request: string, resolver: ResolverFunction): string {
     debugLogger.summary("Module.resolve", this.id, request);
-    debugLogger.args("Module.resolve", request);
+    debugLogger.args("Module.resolve", request, resolver);
 
-    const resolved = this._resolver(request, this.id);
+    const resolved = resolver(request, this.id);
+
+    this.requests.set(request, resolved);
 
     debugLogger.returns("Module.resolve ->", resolved);
     return resolved;
