@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import util from "node:util";
 import { run, optionalPath, optionalBoolean, optionalString } from "clefairy";
-import { walk, WalkOptions, ReportedError, serialize } from ".";
+import { walkAsync, WalkOptions, ReportedError, serialize } from ".";
 
 run(
   {
@@ -12,6 +12,7 @@ run(
     skip: optionalString,
     json: optionalBoolean,
     onlyEntrypoint: optionalBoolean,
+    sort: optionalBoolean,
     help: optionalBoolean,
     h: optionalBoolean,
   },
@@ -22,6 +23,7 @@ run(
     skip,
     json,
     onlyEntrypoint,
+    sort,
     help,
     h,
   }) => {
@@ -42,6 +44,7 @@ run(
     }
 
     const walkOptions: WalkOptions = {
+      sort,
       onError: (err: ReportedError) => {
         if (!fullErrors && /node_modules/.test(err.filename || "")) {
           // Don't report resolution errors under node_modules dirs because
@@ -104,7 +107,7 @@ run(
       }
     }
 
-    const result = walk(entrypoint, walkOptions);
+    const result = await walkAsync(entrypoint, walkOptions);
     let toPrint: any = serialize(result.modules);
 
     if (onlyEntrypoint) {

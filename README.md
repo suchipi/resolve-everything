@@ -45,17 +45,20 @@ which outputs JSON shaped like:
 
 - `--only-entrypoint` (boolean): if true, only the imports/requires in the entrypoint file will be resolved, and no other files will be walked over.
 
-- `--resolver` (path): module which exports a JS function that locates modules. Uses the same resolver format as [kame](https://github.com/suchipi/kame#config-hell).
+- `--sort` (boolean): if true, results will be sorted lexicographically. If you want results to be stable, you should enable this, as the order is non-deterministic otherwise (because we crawl the filesystem concurrently).
+
+- `--resolver` (path): module which exports a JS function that locates modules. Uses a resolver format compatible with [kame](https://github.com/suchipi/kame#config-hell), but with an added optional `async` property.
 
 - `--full-errors` (boolean): If reading, parsing, traversal, or resolution errors occur, print as much error information as possible.
 
 ### Node API
 
 ```ts
-import { walk } from "resolve-everything";
+import { walk, walkAsync } from "resolve-everything";
 
 const entrypoint = "/home/someone/some-file.js";
 const { errors, modules } = walk(entrypoint /* , options */);
+// or you could do: await walkAsync(entrypoint, /* options */);
 
 // modules is a Map<string, { id: string, requests: Map<string, string> }>
 ```
@@ -79,11 +82,23 @@ export type WalkOptions = {
   onlyEntrypoint?: boolean;
 
   /**
+   * If true, results will be sorted lexicographically. If you want results to
+   * be stable when using `walkSync`, you should enable this, as the order is
+   * non-deterministic otherwise (because we walk the filesystem concurrently).
+   */
+  sort?: boolean;
+
+  /**
    * A function which translates the string-part of an import/require into the
    * absolute path to the file on disk, OR, if there is no file for that module
    * (ie. it's a node builtin), a string starting with "external:".
+   *
+   * The 'async' property is optional and will only be used by `walkAsync`.
+   * If not present, the normal synchronous resolver will be used.
    */
-  resolver?: (id: string, fromFilePath: string) => string;
+  resolver?: ((id: string, fromFilePath: string) => string) & {
+    async?: (id: string, fromFilePath: string) => Promise<string>;
+  };
 };
 ```
 

@@ -38,17 +38,101 @@ test("sample walk", () => {
           id: '<rootDir>/src/types.ts'
         },
         '<rootDir>/src/default-resolver.ts' => Module {
-          requests: Map(3) {
+          requests: Map(4) {
             'node:module' => 'external:node:module',
             'node:path' => 'external:node:path',
+            'node:util' => 'external:node:util',
             'resolve' => '<rootDir>/node_modules/resolve/index.js'
           },
           id: '<rootDir>/src/default-resolver.ts'
         },
         '<rootDir>/src/walker.ts' => Module {
-          requests: Map(5) {
+          requests: Map(6) {
             'node:path' => 'external:node:path',
             'node:events' => 'external:node:events',
+            'parallel-park' => '<rootDir>/node_modules/parallel-park/dist/index.js',
+            './module' => '<rootDir>/src/module.ts',
+            './debug-logger' => '<rootDir>/src/debug-logger.ts',
+            './types' => '<rootDir>/src/types.ts'
+          },
+          id: '<rootDir>/src/walker.ts'
+        },
+        '<rootDir>/src/module.ts' => Module {
+          requests: Map(5) {
+            'node:fs' => 'external:node:fs',
+            'equivalent-exchange' => '<rootDir>/node_modules/equivalent-exchange/dist/index.js',
+            './debug-logger' => '<rootDir>/src/debug-logger.ts',
+            './types' => '<rootDir>/src/types.ts',
+            'pretty-print-ast' => '<rootDir>/node_modules/pretty-print-ast/dist/index.js'
+          },
+          id: '<rootDir>/src/module.ts'
+        },
+        '<rootDir>/src/serialize.ts' => Module {
+          requests: Map(1) {
+            './module' => '<rootDir>/src/module.ts'
+          },
+          id: '<rootDir>/src/serialize.ts'
+        },
+        '<rootDir>/src/debug-logger.ts' => Module {
+          requests: Map(1) {
+            'debug' => '<rootDir>/node_modules/debug/src/index.js'
+          },
+          id: '<rootDir>/src/debug-logger.ts'
+        }
+      }
+    }"
+  `);
+});
+
+test("sorted", () => {
+  const entrypoint = rootDir("src/index.ts");
+
+  const result = walk(entrypoint, { sort: true });
+
+  expect(inspectAndClean(result)).toMatchInlineSnapshot(`
+    "{
+      errors: [],
+      modules: Map(8) {
+        '<rootDir>/src/index.ts' => Module {
+          requests: Map(6) {
+            './walk' => '<rootDir>/src/walk.ts',
+            './types' => '<rootDir>/src/types.ts',
+            './default-resolver' => '<rootDir>/src/default-resolver.ts',
+            './walker' => '<rootDir>/src/walker.ts',
+            './module' => '<rootDir>/src/module.ts',
+            './serialize' => '<rootDir>/src/serialize.ts'
+          },
+          id: '<rootDir>/src/index.ts'
+        },
+        '<rootDir>/src/walk.ts' => Module {
+          requests: Map(6) {
+            'node:path' => 'external:node:path',
+            './walker' => '<rootDir>/src/walker.ts',
+            './module' => '<rootDir>/src/module.ts',
+            './debug-logger' => '<rootDir>/src/debug-logger.ts',
+            './types' => '<rootDir>/src/types.ts',
+            './default-resolver' => '<rootDir>/src/default-resolver.ts'
+          },
+          id: '<rootDir>/src/walk.ts'
+        },
+        '<rootDir>/src/types.ts' => Module {
+          requests: Map(0) {},
+          id: '<rootDir>/src/types.ts'
+        },
+        '<rootDir>/src/default-resolver.ts' => Module {
+          requests: Map(4) {
+            'node:module' => 'external:node:module',
+            'node:path' => 'external:node:path',
+            'node:util' => 'external:node:util',
+            'resolve' => '<rootDir>/node_modules/resolve/index.js'
+          },
+          id: '<rootDir>/src/default-resolver.ts'
+        },
+        '<rootDir>/src/walker.ts' => Module {
+          requests: Map(6) {
+            'node:path' => 'external:node:path',
+            'node:events' => 'external:node:events',
+            'parallel-park' => '<rootDir>/node_modules/parallel-park/dist/index.js',
             './module' => '<rootDir>/src/module.ts',
             './debug-logger' => '<rootDir>/src/debug-logger.ts',
             './types' => '<rootDir>/src/types.ts'
@@ -90,7 +174,7 @@ test("including node_modules via skip: null", () => {
   expect(inspectAndClean(result)).toMatchInlineSnapshot(`
     "{
       errors: [],
-      modules: Map(258) {
+      modules: Map(261) {
         '<rootDir>/src/index.ts' => Module {
           requests: Map(6) {
             './walk' => '<rootDir>/src/walk.ts',
@@ -118,17 +202,19 @@ test("including node_modules via skip: null", () => {
           id: '<rootDir>/src/types.ts'
         },
         '<rootDir>/src/default-resolver.ts' => Module {
-          requests: Map(3) {
+          requests: Map(4) {
             'node:module' => 'external:node:module',
             'node:path' => 'external:node:path',
+            'node:util' => 'external:node:util',
             'resolve' => '<rootDir>/node_modules/resolve/index.js'
           },
           id: '<rootDir>/src/default-resolver.ts'
         },
         '<rootDir>/src/walker.ts' => Module {
-          requests: Map(5) {
+          requests: Map(6) {
             'node:path' => 'external:node:path',
             'node:events' => 'external:node:events',
+            'parallel-park' => '<rootDir>/node_modules/parallel-park/dist/index.js',
             './module' => '<rootDir>/src/module.ts',
             './debug-logger' => '<rootDir>/src/debug-logger.ts',
             './types' => '<rootDir>/src/types.ts'
@@ -165,6 +251,13 @@ test("including node_modules via skip: null", () => {
             './lib/sync' => '<rootDir>/node_modules/resolve/lib/sync.js'
           },
           id: '<rootDir>/node_modules/resolve/index.js'
+        },
+        '<rootDir>/node_modules/parallel-park/dist/index.js' => Module {
+          requests: Map(2) {
+            './run-jobs' => '<rootDir>/node_modules/parallel-park/dist/run-jobs.js',
+            './in-child-process' => '<rootDir>/node_modules/parallel-park/dist/in-child-process.js'
+          },
+          id: '<rootDir>/node_modules/parallel-park/dist/index.js'
         },
         '<rootDir>/node_modules/equivalent-exchange/dist/index.js' => Module {
           requests: Map(6) {
@@ -226,6 +319,14 @@ test("including node_modules via skip: null", () => {
             './normalize-options' => '<rootDir>/node_modules/resolve/lib/normalize-options.js'
           },
           id: '<rootDir>/node_modules/resolve/lib/sync.js'
+        },
+        '<rootDir>/node_modules/parallel-park/dist/run-jobs.js' => Module {
+          requests: Map(0) {},
+          id: '<rootDir>/node_modules/parallel-park/dist/run-jobs.js'
+        },
+        '<rootDir>/node_modules/parallel-park/dist/in-child-process.js' => Module {
+          requests: Map(1) { 'child_process' => 'external:child_process' },
+          id: '<rootDir>/node_modules/parallel-park/dist/in-child-process.js'
         },
         '<rootDir>/node_modules/@babel/traverse/lib/index.js' => Module {
           requests: Map(7) {
@@ -2000,9 +2101,10 @@ test("custom resolver function", () => {
           id: '<rootDir>/src/index.ts'
         },
         '<rootDir>/src/walker.ts' => Module {
-          requests: Map(5) {
+          requests: Map(6) {
             'node:path' => 'external:__node:path__<rootDir>/src/walker.ts',
             'node:events' => 'external:__node:events__<rootDir>/src/walker.ts',
+            'parallel-park' => 'external:__parallel-park__<rootDir>/src/walker.ts',
             './module' => 'external:__./module__<rootDir>/src/walker.ts',
             './debug-logger' => 'external:__./debug-logger__<rootDir>/src/walker.ts',
             './types' => '<rootDir>/src/walker.ts'

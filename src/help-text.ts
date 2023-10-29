@@ -61,11 +61,23 @@ ${opt("--only-entrypoint")} (boolean):
   If true, only the imports/requires in the entrypoint file will be resolved,
   and no other files will be walked over.
 
-${opt("--resolver")} (path):
-  Module which exports a JS function that locates modules. Uses the same
-  resolver format as https://github.com/suchipi/kame, namely:
 
-  export function resolve(id: string, fromFilePath: string): string;
+${opt("--sort")} (boolean):
+  If true, results will be sorted lexicographically. If you want results to be
+  stable, you should enable this, as the order is non-deterministic otherwise
+  (because we crawl the filesystem concurrently).
+
+${opt("--resolver")} (path):
+  Module which exports a JS function that locates modules. Uses a resolver
+  format compatible with https://github.com/suchipi/kame, namely:
+
+  export const resolve: {
+    (id: string, fromFilePath: string): string;
+    async?: (id: string, fromFilePath: string) => Promise<string>;
+  }
+
+  The 'async' property is optional; if not present, the normal synchronous
+  resolver will be used.
 
 ${opt("--full-errors")} (boolean):
   If reading, parsing, traversal, or resolution errors occur, print as much

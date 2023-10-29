@@ -33,6 +33,21 @@ export class Module {
     return code;
   }
 
+  async readAsync(): Promise<string | null> {
+    debugLogger.summary("Module.readAsync", this.id);
+
+    if (!/\.[cm]?[tj]sx?$/.test(this.id)) {
+      debugLogger.summary("doesn't appear to be js/ts:", this.id);
+      debugLogger.returns("Module.readAsync -> null");
+      return null;
+    }
+
+    const code = await fs.promises.readFile(this.id, "utf-8");
+    debugLogger.fileContent(code);
+    debugLogger.returns("Module.readAsync ->", code);
+    return code;
+  }
+
   parse(code: string): ee.types.File {
     debugLogger.summary("Module.parse", this.id);
     debugLogger.args("Module.parse", code);
@@ -117,6 +132,30 @@ export class Module {
     this.requests.set(request, resolved);
 
     debugLogger.returns("Module.resolve ->", resolved);
+    return resolved;
+  }
+
+  async resolveAsync(
+    request: string,
+    resolver: ResolverFunction,
+  ): Promise<string> {
+    debugLogger.summary("Module.resolveAsync", this.id, request);
+    debugLogger.args("Module.resolveAsync", request, resolver);
+
+    let resolved: string;
+    if (resolver.async == null) {
+      debugLogger.summary(
+        "Module.resolveAsync falling back to sync as user-provided resolver doesn't have an 'async' property",
+      );
+
+      resolved = resolver(request, this.id);
+    } else {
+      resolved = await resolver.async(request, this.id);
+    }
+
+    this.requests.set(request, resolved);
+
+    debugLogger.returns("Module.resolveAsync ->", resolved);
     return resolved;
   }
 

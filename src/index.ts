@@ -1,4 +1,4 @@
-export { walk, type WalkOptions } from "./walk";
+export { walk, walkAsync, type WalkOptions } from "./walk";
 export type { ErrorReport as ReportedError, ResolverFunction } from "./types";
 export { defaultResolver } from "./default-resolver";
 export { Walker, type WalkerOptions } from "./walker";
