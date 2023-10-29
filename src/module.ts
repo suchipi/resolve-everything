@@ -119,4 +119,8 @@ export class Module {
     debugLogger.returns("Module.resolve ->", resolved);
     return resolved;
   }
+
+  get dependencies() {
+    return new Set(this.requests.values());
+  }
 }
