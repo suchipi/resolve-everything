@@ -2013,3 +2013,22 @@ test("custom resolver function", () => {
     }"
   `);
 });
+
+test("'dependencies' getter", () => {
+  const entrypoint = rootDir("src/index.ts");
+
+  const result = walk(entrypoint, { onlyEntrypoint: true });
+
+  const mod = result.modules.get(entrypoint);
+
+  expect(inspectAndClean(mod!.dependencies)).toMatchInlineSnapshot(`
+    "Set(6) {
+      '<rootDir>/src/walk.ts',
+      '<rootDir>/src/types.ts',
+      '<rootDir>/src/default-resolver.ts',
+      '<rootDir>/src/walker.ts',
+      '<rootDir>/src/module.ts',
+      '<rootDir>/src/serialize.ts'
+    }"
+  `);
+});
