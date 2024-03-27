@@ -39,7 +39,7 @@ run(
       );
     }
 
-    if (!fs.existsSync(entrypoint)) {
+    if (!fs.existsSync(entrypoint.toString())) {
       throw new Error("No such file: " + entrypoint);
     }
 
@@ -83,7 +83,7 @@ run(
     }
 
     if (resolver) {
-      const exps = require(resolver);
+      const exps = require(resolver.toString());
       if (typeof exps === "function") {
         walkOptions.resolver = exps;
       } else if (typeof exps === "object" && exps != null) {
@@ -107,11 +107,11 @@ run(
       }
     }
 
-    const result = await walkAsync(entrypoint, walkOptions);
+    const result = await walkAsync(entrypoint.toString(), walkOptions);
     let toPrint: any = serialize(result.modules);
 
     if (onlyEntrypoint) {
-      toPrint = toPrint[entrypoint];
+      toPrint = toPrint[entrypoint.toString()];
     }
 
     if (json === undefined && !process.stdout.isTTY) {

@@ -34,7 +34,7 @@
   },
   "prettier": {},
   "dependencies": {
-    "clefairy": "^1.2.0",
+    "clefairy": "^2.0.0",
     "debug": "^4.3.4",
     "equivalent-exchange": "^1.10.0",
     "kleur": "^4.1.5",
