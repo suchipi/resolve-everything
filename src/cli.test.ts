@@ -144,7 +144,6 @@ test("help", async () => {
       If true, only the imports/requires in the entrypoint file will be resolved,
       and no other files will be walked over.
 
-
     --sort (boolean):
       If true, results will be sorted lexicographically. If you want results to be
       stable, you should enable this, as the order is non-deterministic otherwise
